@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { ChevronLeft, Plus, Minus, MousePointer2, ChevronDown, Sparkles, Save, Cloud, CloudOff } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
@@ -12,7 +12,7 @@ import { AiDesignerPanel } from '@/components/lovart/AiDesignerPanel';
 import { useSupabase } from '@/hooks/useSupabase';
 import { v4 as uuidv4 } from 'uuid';
 
-export default function LovartCanvas() {
+function LovartCanvasContent() {
     const { user } = useUser();
     const supabase = useSupabase();
     const searchParams = useSearchParams();
@@ -686,5 +686,20 @@ export default function LovartCanvas() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LovartCanvas() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading canvas...</p>
+                </div>
+            </div>
+        }>
+            <LovartCanvasContent />
+        </Suspense>
     );
 }

@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { Session } from '@clerk/nextjs/server';
 
 export interface Database {
   public: {
@@ -80,17 +79,15 @@ export interface Database {
 /**
  * Create a Supabase client with Clerk session token
  * This function is used on the client side
+ * @param token - The JWT token from Clerk session
  */
-export function createClerkSupabaseClient(session: Session | null) {
+export function createClerkSupabaseClient(token: string | null) {
   return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       global: {
-        headers: async () => {
-          const token = await session?.getToken({ template: 'supabase' });
-          return token ? { Authorization: `Bearer ${token}` } : {};
-        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       },
     }
   );

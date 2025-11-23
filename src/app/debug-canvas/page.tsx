@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useSupabase } from '@/hooks/useSupabase';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function DebugCanvasPage() {
+function DebugCanvasContent() {
     const { user } = useUser();
     const supabase = useSupabase();
     const searchParams = useSearchParams();
@@ -297,5 +297,20 @@ export default function DebugCanvasPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function DebugCanvasPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">加载中...</p>
+                </div>
+            </div>
+        }>
+            <DebugCanvasContent />
+        </Suspense>
     );
 }
