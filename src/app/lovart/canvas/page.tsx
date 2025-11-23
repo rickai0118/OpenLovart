@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { FloatingToolbar } from '@/components/lovart/FloatingToolbar';
 import { CanvasArea, CanvasElement } from '@/components/lovart/CanvasArea';
 import { ImageGeneratorPanel } from '@/components/lovart/ImageGeneratorPanel';
+import { VideoGeneratorPanel } from '@/components/lovart/VideoGeneratorPanel';
 import { AiDesignerPanel } from '@/components/lovart/AiDesignerPanel';
 import { useSupabase } from '@/hooks/useSupabase';
 import { v4 as uuidv4 } from 'uuid';
@@ -386,6 +387,45 @@ function LovartCanvasContent() {
         setActiveTool('select');
     };
 
+    const handleOpenVideoGenerator = () => {
+        const newElement: CanvasElement = {
+            id: uuidv4(),
+            type: 'video-generator',
+            x: 300 - pan.x + elements.length * 20,
+            y: 300 - pan.y + elements.length * 20,
+            width: 400,
+            height: 300,
+        };
+        setElements(prev => [...prev, newElement]);
+        setSelectedIds([newElement.id]);
+        setActiveTool('select');
+    };
+
+    const handleGenerateVideo = async (videoUrl: string) => {
+        const generatorElementId = selectedIds.find(id => elements.find(el => el.id === id)?.type === 'video-generator');
+
+        if (generatorElementId) {
+            setElements(prev => prev.map(el => {
+                if (el.id === generatorElementId) {
+                    return { ...el, type: 'video', content: videoUrl };
+                }
+                return el;
+            }));
+        } else {
+            const newElement: CanvasElement = {
+                id: uuidv4(),
+                type: 'video',
+                x: 300 - pan.x,
+                y: 300 - pan.y,
+                width: 400,
+                height: 300,
+                content: videoUrl,
+            };
+            setElements(prev => [...prev, newElement]);
+            setSelectedIds([newElement.id]);
+        }
+    };
+
     const handleConnectFlow = (sourceElement: CanvasElement) => {
         if (!sourceElement.content) return;
 
@@ -663,6 +703,7 @@ function LovartCanvasContent() {
                     onAddText={handleAddText}
                     onAddShape={handleAddShape}
                     onOpenImageGenerator={handleOpenImageGenerator}
+                    onOpenVideoGenerator={handleOpenVideoGenerator}
                 />
 
                 {/* Image Generator Panel */}
@@ -677,6 +718,30 @@ function LovartCanvasContent() {
                             <ImageGeneratorPanel
                                 elementId={selectedIds[0]}
                                 onGenerate={handleGenerateImage}
+                                isGenerating={isGenerating}
+                                canvasElements={elements}
+                                style={{
+                                    left: `${left}px`,
+                                    top: `${top}px`,
+                                }}
+                            />
+                        );
+                    }
+                    return null;
+                })()}
+
+                {/* Video Generator Panel */}
+                {selectedIds.length === 1 && !isDraggingElement && (() => {
+                    const selectedEl = elements.find(el => el.id === selectedIds[0]);
+                    if (selectedEl?.type === 'video-generator') {
+                        // Calculate position
+                        const left = (selectedEl.x * scale) + pan.x;
+                        const top = ((selectedEl.y + (selectedEl.height || 300)) * scale) + pan.y + 20; // 20px margin
+
+                        return (
+                            <VideoGeneratorPanel
+                                elementId={selectedIds[0]}
+                                onGenerate={handleGenerateVideo}
                                 isGenerating={isGenerating}
                                 canvasElements={elements}
                                 style={{

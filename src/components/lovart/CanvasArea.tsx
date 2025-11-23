@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ContextToolbar } from './ContextToolbar';
 import { v4 as uuidv4 } from 'uuid';
 
-export type CanvasElementType = 'image' | 'text' | 'shape' | 'path' | 'image-generator' | 'video' | 'connector';
+export type CanvasElementType = 'image' | 'text' | 'shape' | 'path' | 'image-generator' | 'video-generator' | 'video' | 'connector';
 
 export interface CanvasElement {
     id: string;
@@ -482,6 +482,19 @@ export function CanvasArea({ scale, pan, onPanChange, elements, selectedIds, onS
                                         </svg>
                                     </div>
                                     <div className="text-sm font-medium">Image Generator</div>
+                                    <div className="text-xs opacity-70">{Math.round(el.width || 0)} x {Math.round(el.height || 0)}</div>
+                                </div>
+                            )}
+
+                            {/* Video Generator Placeholder */}
+                            {el.type === 'video-generator' && (
+                                <div className="w-full h-full bg-blue-50 border-2 border-blue-400 rounded-xl flex flex-col items-center justify-center text-blue-500">
+                                    <div className="w-20 h-20 mb-4 opacity-50">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+                                        </svg>
+                                    </div>
+                                    <div className="text-sm font-medium">Video Generator</div>
                                     <div className="text-xs opacity-70">{Math.round(el.width || 0)} x {Math.round(el.height || 0)}</div>
                                 </div>
                             )}

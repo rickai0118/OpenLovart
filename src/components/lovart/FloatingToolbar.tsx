@@ -11,9 +11,10 @@ interface FloatingToolbarProps {
     onAddText: () => void;
     onAddShape: (type: 'square' | 'circle' | 'triangle' | 'star' | 'message' | 'arrow-left' | 'arrow-right') => void;
     onOpenImageGenerator: () => void;
+    onOpenVideoGenerator?: () => void;
 }
 
-export function FloatingToolbar({ activeTool, onToolChange, onAddImage, onAddVideo, onAddText, onAddShape, onOpenImageGenerator }: FloatingToolbarProps) {
+export function FloatingToolbar({ activeTool, onToolChange, onAddImage, onAddVideo, onAddText, onAddShape, onOpenImageGenerator, onOpenVideoGenerator }: FloatingToolbarProps) {
     const [showUploadMenu, setShowUploadMenu] = useState(false);
     const [showShapeMenu, setShowShapeMenu] = useState(false);
     const [showSelectMenu, setShowSelectMenu] = useState(false);
@@ -155,6 +156,18 @@ export function FloatingToolbar({ activeTool, onToolChange, onAddImage, onAddVid
                                     <Sparkles size={16} />
                                     <span>图像生成器</span>
                                 </button>
+                                {onOpenVideoGenerator && (
+                                    <button
+                                        onClick={() => {
+                                            onOpenVideoGenerator();
+                                            setShowUploadMenu(false);
+                                        }}
+                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors text-left"
+                                    >
+                                        <Video size={16} />
+                                        <span>视频生成器</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
