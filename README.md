@@ -1,5 +1,10 @@
 # OpenLovart 🎨
 
+[![GitHub stars](https://img.shields.io/github/stars/xiaoju111a/OpenLovart?style=social)](https://github.com/xiaoju111a/OpenLovart/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/xiaoju111a/OpenLovart?style=social)](https://github.com/xiaoju111a/OpenLovart/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/xiaoju111a/OpenLovart)](https://github.com/xiaoju111a/OpenLovart/issues)
+[![GitHub license](https://img.shields.io/github/license/xiaoju111a/OpenLovart)](https://github.com/xiaoju111a/OpenLovart/blob/master/LICENSE)
+
 OpenLovart 是一个基于 AI 的设计平台，让创意设计变得简单而强大。通过 AI 对话和智能画布，快速实现你的设计想法。
 
 ## ✨ 主要功能
@@ -172,6 +177,10 @@ MIT License
 - [Google Gemini](https://ai.google.dev/)
 - [X.AI](https://x.ai/)
 
+## 📊 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=xiaoju111a/OpenLovart&type=Date)](https://star-history.com/#xiaoju111a/OpenLovart&Date)
+
 ---
 
-Made with ❤️ by OpenLovart Team
+Made with ❤️ by Xiaoju
