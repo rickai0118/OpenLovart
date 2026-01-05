@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Plus, Sparkles, Bell } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Plus, Sparkles, Bell, X, Star } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { DashboardSidebar } from '@/components/lovart/DashboardSidebar';
 import { ProjectCard } from '@/components/lovart/ProjectCard';
@@ -16,6 +16,17 @@ interface Project {
     updated_at: string;
 }
 
+interface Notification {
+    id: string;
+    title: string;
+    content: string;
+    link?: string;
+    linkText?: string;
+    time: string;
+    isNew: boolean;
+    isPinned?: boolean;
+}
+
 export default function LovartDashboard() {
     const { user } = useUser();
     const supabase = useSupabase();
@@ -26,6 +37,52 @@ export default function LovartDashboard() {
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const notificationRef = useRef<HTMLDivElement>(null);
+
+    // 点击外部关闭通知弹窗
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+                setShowNotifications(false);
+            }
+        }
+
+        if (showNotifications) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showNotifications]);
+
+    const notifications: Notification[] = [
+        {
+            id: '1',
+            title: '🎉 OpenLovart 开源啦！',
+            content: '欢迎访问我们的 GitHub 仓库，给我们一个 Star ⭐',
+            link: 'https://github.com/xiaoju111a/OpenLovart',
+            linkText: '访问 GitHub',
+            time: '置顶',
+            isNew: true,
+            isPinned: true,
+        },
+        {
+            id: '2',
+            title: 'Sora 2 视频生成已上线',
+            content: '现在可以使用 AI 生成高质量视频了',
+            time: '1 小时前',
+            isNew: true,
+        },
+        {
+            id: '3',
+            title: '系统更新',
+            content: '优化了画布性能和用户体验',
+            time: '昨天',
+            isNew: false,
+        },
+    ];
 
     const placeholders = [
         '让 Lovart 为你自动生成内容或效果图吧',
@@ -194,10 +251,71 @@ export default function LovartDashboard() {
 
                         <div className="flex items-center gap-2">
                             {/* Notification Bell */}
-                            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                                <Bell size={18} className="text-gray-600" />
-                                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                            </button>
+                            <div className="relative" ref={notificationRef}>
+                                <button 
+                                    onClick={() => setShowNotifications(!showNotifications)}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                                >
+                                    <Bell size={18} className="text-gray-600" />
+                                    <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                </button>
+
+                                {/* Notifications Dropdown */}
+                                {showNotifications && (
+                                    <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                            <h3 className="font-semibold text-gray-900">通知</h3>
+                                            <button 
+                                                onClick={() => setShowNotifications(false)}
+                                                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                                            >
+                                                <X size={16} className="text-gray-500" />
+                                            </button>
+                                        </div>
+                                        <div className="max-h-80 overflow-y-auto">
+                                            {notifications.map((notification) => (
+                                                <div 
+                                                    key={notification.id}
+                                                    className={`px-4 py-3 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors ${notification.isPinned ? 'bg-orange-50/50' : ''}`}
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="shrink-0 pt-0.5">
+                                                            {notification.isPinned ? (
+                                                                <span className="inline-block px-1.5 py-0.5 bg-orange-400 text-white rounded text-xs font-medium">置顶</span>
+                                                            ) : notification.isNew ? (
+                                                                <span className="inline-block w-2 h-2 bg-red-500 rounded-full mt-1"></span>
+                                                            ) : (
+                                                                <span className="inline-block w-2 h-2 bg-gray-300 rounded-full mt-1"></span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-medium text-gray-900 text-sm leading-tight">{notification.title}</p>
+                                                            <p className="text-gray-500 text-xs mt-1 leading-relaxed">{notification.content}</p>
+                                                            {notification.link && (
+                                                                <a 
+                                                                    href={notification.link}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-800 transition-colors"
+                                                                >
+                                                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                                                    </svg>
+                                                                    {notification.linkText}
+                                                                    <Star size={12} />
+                                                                </a>
+                                                            )}
+                                                            {!notification.isPinned && (
+                                                                <p className="text-gray-400 text-xs mt-2">{notification.time}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Credits Display */}
                             <SignedIn>
@@ -226,14 +344,16 @@ export default function LovartDashboard() {
                         {/* Hero Section */}
                         <div className="max-w-3xl mx-auto text-center mb-16">
                             {/* Promo Badge */}
-                            <Link 
-                                href="#" 
+                            <a 
+                                href="https://github.com/xiaoju111a/OpenLovart" 
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 hover:bg-orange-100 rounded-full text-sm text-gray-700 transition-colors mb-6"
                             >
                                 <span className="px-2 py-0.5 bg-orange-400 text-white rounded text-xs font-medium">NEW</span>
-                                <span>Nano Banana Pro 现已上线 Lovart 卡牌</span>
+                                <span>OpenLovart 已开源，欢迎 Star ⭐</span>
                                 <span className="text-orange-600">→</span>
-                            </Link>
+                            </a>
 
                             <div className="flex items-center justify-center gap-3 mb-4">
                                 <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white text-xl font-bold">L</div>
@@ -274,9 +394,6 @@ export default function LovartDashboard() {
 
                             {/* Quick Tags */}
                             <div className="flex items-center justify-center gap-3 flex-wrap">
-                                <button className="px-4 py-2 rounded-full bg-orange-50 text-orange-700 text-sm font-medium hover:bg-orange-100 transition-colors">
-                                    🍌 Nano Banana Pro
-                                </button>
                                 <button className="px-4 py-2 rounded-full bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
                                     🎨 Design
                                 </button>
